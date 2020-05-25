@@ -8,6 +8,11 @@ import net.dv8tion.jda.api.entities.TextChannel;
 import net.powerplugins.bot.PowerPlugins;
 import org.bukkit.plugin.Plugin;
 
+import java.util.Arrays;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
+
 public class MessageManager{
     
     private final PowerPlugins bot;
@@ -88,7 +93,10 @@ public class MessageManager{
                 );
         
         StringBuilder sb = new StringBuilder();
-        for(Plugin plugin : plugins){
+        List<Plugin> pluginList = Arrays.stream(plugins)
+                .sorted(Comparator.comparing(Plugin::getName))
+                .collect(Collectors.toList());
+        for(Plugin plugin : pluginList){
             if(sb.length() + plugin.getName().length() + 10 >= MessageEmbed.VALUE_MAX_LENGTH){
                 builder.addField(
                         EmbedBuilder.ZERO_WIDTH_SPACE,
@@ -120,9 +128,7 @@ public class MessageManager{
                     false
             );
         
-        String msgId = null;
-        if(bot.getConfig().get("guild.channels.plugin.messageId") != null)
-            msgId = bot.getConfig().getString("guild.channels.plugins.messageId");
+        String msgId = bot.getConfig().getString("guild.channels.plugins.messageId");
         
         String channelId = bot.getConfig().getString("guild.channels.plugins.id");
         if(channelId == null)
@@ -137,7 +143,7 @@ public class MessageManager{
             if(!msg.getAuthor().equals(bot.getJda().getSelfUser()))
                 return;
             
-            msg.editMessage(builder.build()).override(true).queue();
+            msg.editMessage(builder.build()).queue();
         }else{
             tc.sendMessage(builder.build()).queue(message -> {
                 bot.getConfig().set("guild.channels.plugins.messageId", message.getId());
