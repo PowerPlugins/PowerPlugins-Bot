@@ -31,6 +31,7 @@ public class BotEvents extends ListenerAdapter{
         bot.updateTopic();
         
         bot.checkPlugins();
+        bot.setupCommands(event.getJDA());
     }
     
     @Override

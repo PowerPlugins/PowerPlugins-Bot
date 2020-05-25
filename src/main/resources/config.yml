@@ -8,6 +8,11 @@ bot:
   token: ''
 
 guild:
+  #
+  # The prefix of the bot to use in the Guild
+  prefix: 'p!'
+  #
+  # Channel specific settings.
   channels:
     #
     # The plugin-updates channel where notifications about plugin updates are posted.

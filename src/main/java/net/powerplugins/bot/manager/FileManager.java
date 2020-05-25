@@ -98,7 +98,7 @@ public class FileManager{
         return false;
     }
     
-    static class PluginFile{
+    public static class PluginFile{
         
         private final String version;
         private final String url;

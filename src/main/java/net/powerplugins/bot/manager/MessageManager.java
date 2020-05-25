@@ -5,6 +5,7 @@ import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.MessageEmbed;
 import net.dv8tion.jda.api.entities.Role;
 import net.dv8tion.jda.api.entities.TextChannel;
+import net.dv8tion.jda.api.utils.MarkdownUtil;
 import net.powerplugins.bot.PowerPlugins;
 import org.bukkit.plugin.Plugin;
 
@@ -83,7 +84,7 @@ public class MessageManager{
         tc.sendMessage(role.getAsMention()).embed(embed.build()).queue();
     }
     
-    public void updateList(Plugin... plugins){
+    public void updateList(List<Plugin> plugins){
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(0xF39C12)
                 .setTitle("Plugin List")
@@ -93,10 +94,7 @@ public class MessageManager{
                 );
         
         StringBuilder sb = new StringBuilder();
-        List<Plugin> pluginList = Arrays.stream(plugins)
-                .sorted(Comparator.comparing(Plugin::getName))
-                .collect(Collectors.toList());
-        for(Plugin plugin : pluginList){
+        for(Plugin plugin : plugins){
             if(sb.length() + plugin.getName().length() + 10 >= MessageEmbed.VALUE_MAX_LENGTH){
                 builder.addField(
                         EmbedBuilder.ZERO_WIDTH_SPACE,
@@ -150,5 +148,9 @@ public class MessageManager{
                 bot.saveConfig();
             });
         }
+    }
+    
+    public void sendMessage(TextChannel channel, String msg){
+        channel.sendMessage(MarkdownUtil.quoteBlock(msg)).queue();
     }
 }

@@ -1,36 +1,53 @@
 package net.powerplugins.bot;
 
+import com.github.rainestormee.jdacommand.CommandHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
+import net.dv8tion.jda.api.entities.Message;
 import net.dv8tion.jda.api.entities.TextChannel;
 import net.dv8tion.jda.api.utils.ChunkingFilter;
 import net.dv8tion.jda.api.utils.cache.CacheFlag;
+import net.powerplugins.bot.commands.CommandListener;
+import net.powerplugins.bot.commands.CommandLoader;
 import net.powerplugins.bot.events.BotEvents;
 import net.powerplugins.bot.events.ServerEvents;
 import net.powerplugins.bot.manager.FileManager;
 import net.powerplugins.bot.manager.MessageManager;
+import net.powerplugins.bot.manager.ResourceInfoManager;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.security.auth.login.LoginException;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class PowerPlugins extends JavaPlugin{
     
     private JDA jda;
     private BotState state;
     
+    private String prefix;
+    private List<Plugin> plugins;
+    
     private FileManager fileManager;
     private MessageManager messageManager;
+    private ResourceInfoManager resourceInfoManager;
+    
+    private final CommandHandler<Message> cmdHandler = new CommandHandler<>();
     
     @Override
     public void onLoad(){
-        saveDefaultConfig();
         getLogger().info("Loading config and dependencies...");
+        saveDefaultConfig();
+        
+        prefix = getConfig().getString("guild.prefix");
+        plugins = new ArrayList<>();
         
         fileManager = new FileManager(this);
         messageManager = new MessageManager(this);
+        resourceInfoManager = new ResourceInfoManager(this);
     }
     
     @Override
@@ -82,12 +99,21 @@ public class PowerPlugins extends JavaPlugin{
     }
     
     public void checkPlugins(){
-        for(Plugin plugin : getServer().getPluginManager().getPlugins())
+        plugins = Arrays.stream(getServer().getPluginManager().getPlugins())
+                .sorted(Comparator.comparing(Plugin::getName))
+                .collect(Collectors.toList());
+        
+        for(Plugin plugin : plugins)
             messageManager.sendUpdate(plugin);
         
-        messageManager.updateList(getServer().getPluginManager().getPlugins());
+        messageManager.updateList(plugins);
         
         getLogger().info("Plugin checks finished!");
+    }
+    
+    public void setupCommands(JDA jda){
+        cmdHandler.registerCommands(new HashSet<>(new CommandLoader(this).getCommands()));
+        jda.addEventListener(new CommandListener(this, cmdHandler));
     }
     
     public JDA getJda(){
@@ -102,8 +128,24 @@ public class PowerPlugins extends JavaPlugin{
         this.state = state;
     }
     
+    public String getPrefix(){
+        return prefix;
+    }
+    
+    public List<Plugin> getPlugins(){
+        return plugins;
+    }
+    
     public FileManager getFileManager(){
         return fileManager;
+    }
+    
+    public ResourceInfoManager getResourceInfoManager(){
+        return resourceInfoManager;
+    }
+    
+    public CommandHandler<Message> getCmdHandler(){
+        return cmdHandler;
     }
     
     public enum BotState{
@@ -138,5 +180,13 @@ public class PowerPlugins extends JavaPlugin{
                 String.join("\n", getConfig().getStringList("guild.channels.plugins.topic"))
                       .replace("%plugins%", String.valueOf(getServer().getPluginManager().getPlugins().length))
         ).queue();
+    }
+    
+    public void sendMessage(TextChannel channel, String message){
+        messageManager.sendMessage(channel, message);
+    }
+    
+    public void sendMessage(TextChannel channel, String message, Object... args){
+        sendMessage(channel, String.format(message, args));
     }
 }
