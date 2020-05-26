@@ -4,7 +4,7 @@ import net.dv8tion.jda.api.OnlineStatus;
 import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.events.DisconnectEvent;
 import net.dv8tion.jda.api.events.ReadyEvent;
-import net.dv8tion.jda.api.events.ReconnectedEvent;
+import net.dv8tion.jda.api.events.ResumedEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import net.powerplugins.bot.PowerPlugins;
 import net.powerplugins.bot.PowerPlugins.BotState;
@@ -40,7 +40,7 @@ public class BotEvents extends ListenerAdapter{
     }
     
     @Override
-    public void onReconnect(@Nonnull ReconnectedEvent event){
+    public void onResume(@Nonnull ResumedEvent event){
         bot.setState(BotState.READY);
     }
 }

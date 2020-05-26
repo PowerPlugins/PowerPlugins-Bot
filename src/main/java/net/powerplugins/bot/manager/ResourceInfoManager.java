@@ -17,8 +17,7 @@ import java.util.regex.Pattern;
 
 public class ResourceInfoManager{
     
-    private final String SPIGET_URL = "https://api.spiget.org/v2/resources/%s";
-    private static final String ICON_URL = "https://static.spigotmc.org/styles/spigot/xenresource/resource_icon.png";
+    private final String SPIGET_URL = "https://api.spigotmc.org/simple/0.1/index.php?action=getResource&id=%s";
     
     private final String USER_AGENT = "PowerPlugins - ResourceInfoManager";
     
@@ -71,7 +70,7 @@ public class ResourceInfoManager{
                 if(json.isJsonObject()){
                     ResourceInfo info = GSON.fromJson(json, ResourceInfo.class);
                     info.setType(Type.SPIGOT);
-                    info.setResponse(200);
+                    info.setResponseCode(200);
                     
                     return info;
                 }else{
@@ -85,127 +84,150 @@ public class ResourceInfoManager{
     }
     
     public static class ResourceInfo{
-        
         private Type type;
-        private int response;
+        private int responseCode;
         
-        private final int id;
+        private final String id;
         
-        private final String name;
+        private final String title;
         private final String tag;
         
-        private final int downloads;
+        private final String current_version;
         
-        private final Rating rating;
+        private final Author author;
         
-        private final Icon icon;
+        private final Premium premium;
         
-        private final boolean premium;
-        private final int price;
-        private final String currency;
-    
+        private final Stats stats;
+        
         public ResourceInfo(Type type){
             this(type, 200);
         }
         
-        public ResourceInfo(Type type, int response){
+        public ResourceInfo(Type type, int responseCode){
             this.type = type;
-            this.response = response;
+            this.responseCode = responseCode;
             
-            this.id = -1;
+            this.id = null;
             
-            this.name = null;
+            this.title = null;
             this.tag = null;
             
-            this.downloads = -1;
+            this.current_version = null;
             
-            this.rating = new Rating();
+            this.author = new Author();
             
-            this.icon = new Icon();
+            this.premium = new Premium();
             
-            this.premium = false;
-            this.price = -1;
-            this.currency = null;
+            this.stats = new Stats();
         }
-        
+    
         public Type getType(){
             return type;
         }
     
-        public int getResponse(){
-            return response;
+        public int getResponseCode(){
+            return responseCode;
         }
-        
+    
         public String getUrl(){
             return "https://www.spigotmc.org/resources/" + id;
         }
     
-        public String getName(){
-            return name;
+        public String getTitle(){
+            return title;
         }
-    
+        
         public String getTag(){
             return tag;
         }
     
-        public int getDownloads(){
-            return downloads;
+        public String getCurrentVersion(){
+            return current_version;
         }
     
-        public Rating getRating(){
-            return rating;
+        public Author getAuthor(){
+            return author;
         }
     
-        public Icon getIcon(){
-            return icon;
-        }
-    
-        public boolean isPremium(){
+        public Premium getPremium(){
             return premium;
         }
     
-        public int getPrice(){
+        public Stats getStats(){
+            return stats;
+        }
+        
+        public void setType(Type type){
+            this.type = type;
+        }
+    
+        public void setResponseCode(int responseCode){
+            this.responseCode = responseCode;
+        }
+    }
+    
+    public static class Author{
+        private final String id;
+        private final String username;
+        
+        public Author(){
+            this.id = null;
+            this.username = null;
+        }
+    
+        public String getUrl(){
+            return "https://www.spigotmc.org/resources/authors/" + id;
+        }
+    
+        public String getUsername(){
+            return username;
+        }
+    }
+    
+    public static class Premium{
+        private final String price;
+        private final String currency;
+        
+        public Premium(){
+            this.price = "0.0";
+            this.currency = null;
+        }
+    
+        public String getPrice(){
             return price;
         }
     
         public String getCurrency(){
             return currency;
         }
-    
-        public void setType(Type type){
-            this.type = type;
-        }
         
-        public void setResponse(int response){
-            this.response = response;
+        public boolean isPremium(){
+            return !price.equals("0.0");
         }
     }
     
-    public static class Rating{
-        private final int count;
-        private final double average;
-    
-        public Rating(){
-            this.count = -1;
-            this.average = -1;
-        }
+    public static class Stats{
+        private final String downloads;
+        private final String reviews;
+        private final String rating;
         
-        public int getCount(){
-            return count;
+        public Stats(){
+            this.downloads = null;
+            this.reviews = null;
+            this.rating = null;
         }
     
-        public double getAverage(){
-            return average;
+        public String getDownloads(){
+            return downloads;
         }
-    }
     
-    public static class Icon{
-        private final String url = null;
-        
-        public Icon(){}
+        public String getReviews(){
+            return reviews;
+        }
     
-        public String getUrl(){
-            return url.isEmpty() ? ICON_URL : "https://www.spigotmc.org/" + url;
+        public String getRating(){
+            return rating;
         }
     }
     

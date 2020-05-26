@@ -1,5 +1,7 @@
 package net.powerplugins.bot;
 
+import com.github.benmanes.caffeine.cache.Cache;
+import com.github.benmanes.caffeine.cache.Caffeine;
 import com.github.rainestormee.jdacommand.CommandHandler;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.JDABuilder;
@@ -21,6 +23,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 
 import javax.security.auth.login.LoginException;
 import java.util.*;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 public class PowerPlugins extends JavaPlugin{
@@ -29,7 +32,9 @@ public class PowerPlugins extends JavaPlugin{
     private BotState state;
     
     private String prefix;
-    private List<Plugin> plugins;
+    private final Cache<String, List<Plugin>> plugins = Caffeine.newBuilder()
+            .expireAfterWrite(5, TimeUnit.MINUTES)
+            .build();
     
     private FileManager fileManager;
     private MessageManager messageManager;
@@ -43,7 +48,6 @@ public class PowerPlugins extends JavaPlugin{
         saveDefaultConfig();
         
         prefix = getConfig().getString("guild.prefix");
-        plugins = new ArrayList<>();
         
         fileManager = new FileManager(this);
         messageManager = new MessageManager(this);
@@ -99,14 +103,10 @@ public class PowerPlugins extends JavaPlugin{
     }
     
     public void checkPlugins(){
-        plugins = Arrays.stream(getServer().getPluginManager().getPlugins())
-                .sorted(Comparator.comparing(Plugin::getName))
-                .collect(Collectors.toList());
-        
-        for(Plugin plugin : plugins)
+        for(Plugin plugin : getPlugins())
             messageManager.sendUpdate(plugin);
         
-        messageManager.updateList(plugins);
+        messageManager.updateList(getPlugins());
         
         getLogger().info("Plugin checks finished!");
     }
@@ -114,6 +114,12 @@ public class PowerPlugins extends JavaPlugin{
     public void setupCommands(JDA jda){
         cmdHandler.registerCommands(new HashSet<>(new CommandLoader(this).getCommands()));
         jda.addEventListener(new CommandListener(this, cmdHandler));
+    }
+    
+    private List<Plugin> retrievePlugins(){
+        return Arrays.stream(getServer().getPluginManager().getPlugins())
+                .sorted(Comparator.comparing(Plugin::getName))
+                .collect(Collectors.toList());
     }
     
     public JDA getJda(){
@@ -133,7 +139,7 @@ public class PowerPlugins extends JavaPlugin{
     }
     
     public List<Plugin> getPlugins(){
-        return plugins;
+        return plugins.get("plugins", k -> retrievePlugins());
     }
     
     public FileManager getFileManager(){

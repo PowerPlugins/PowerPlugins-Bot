@@ -28,9 +28,12 @@ public class CmdPlugin implements Command{
         if(args.length == 0){
             bot.sendMessage(
                     tc,
-                    "Missing arguments!\n" +
-                    "**Usage**: `%splugin <plugin>`",
-                    bot.getPrefix()
+                    String.format(
+                            "There are currently `%d` plugins on the Server!\n" +
+                            "Use `%splugin <plugin>` to get some information about a specific plugin.",
+                            bot.getPlugins().size(),
+                            bot.getPrefix()
+                    )
             );
             return;
         }
@@ -65,7 +68,7 @@ public class CmdPlugin implements Command{
                 case BUKKIT:
                     bot.sendMessage(
                             tc,
-                            "The requested Plugin is a Bukkit plugin.\n" +
+                            "The requested Plugin is a **Bukkit** plugin.\n" +
                             "I cannot retrieve information about plugins only available on bukkit."
                     );
                     break;
@@ -73,7 +76,7 @@ public class CmdPlugin implements Command{
                 case PRIVATE:
                     bot.sendMessage(
                             tc,
-                            "The requested Plugin is a private plugin.\n" +
+                            "The requested Plugin is a **Private** plugin.\n" +
                             "I cannot get information of plugins that aren't on Spigot."
                     );
                     break;
@@ -83,7 +86,7 @@ public class CmdPlugin implements Command{
                             tc,
                             "The Spiget API responded with a non-successful response (`%d`).\n" +
                             "Please try again later.",
-                            resourceInfo.getResponse()
+                            resourceInfo.getResponseCode()
                     );
                     break;
                 
@@ -110,39 +113,60 @@ public class CmdPlugin implements Command{
     }
     
     private MessageEmbed getInfo(ResourceInfoManager.ResourceInfo info){
+        String title = info.getTitle();
         EmbedBuilder builder = new EmbedBuilder()
                 .setColor(0xF39C12)
-                .setTitle(info.getName(), info.getUrl())
-                .setThumbnail(info.getIcon().getUrl())
+                .setTitle(
+                        title.length() > MessageEmbed.TITLE_MAX_LENGTH ? title.substring(0, 250) + "..." : title, 
+                        info.getUrl()
+                )
                 .setDescription(info.getTag())
                 .addField(
+                        "Latest Version",
+                        String.format(
+                                "`%s`",
+                                info.getCurrentVersion()
+                        ),
+                        true
+                )
+                .addField(
                         "Downloads",
-                        String.valueOf(info.getDownloads()),
+                        String.format(
+                                "`%s`",
+                                info.getStats().getDownloads()
+                        ),
                         true
                 )
                 .addField(
                         "Rating",
                         String.format(
-                                "Total Ratings: `%d`\n" +
+                                "Total Ratings: `%s`\n" +
                                 "Average: %s",
-                                info.getRating().getCount(),
+                                info.getStats().getReviews(),
                                 getRatingIcons(info)
+                        ),
+                        true
+                )
+                .addField(
+                        "Author",
+                        String.format(
+                                "[`%s`](%s)",
+                                info.getAuthor().getUsername(),
+                                info.getAuthor().getUrl()
                         ),
                         true
                 );
         
-        if(info.isPremium())
+        if(info.getPremium().isPremium())
             builder.addField(
                     "Price",
                     String.format(
-                            "`%d %s`",
-                            info.getPrice(),
-                            info.getCurrency()
+                            "`%s %s`",
+                            info.getPremium().getPrice(),
+                            info.getPremium().getCurrency()
                     ),
                     true
             );
-        else
-            builder.addBlankField(true);
         
         return builder.build();
     }
@@ -150,17 +174,23 @@ public class CmdPlugin implements Command{
     private String getRatingIcons(ResourceInfoManager.ResourceInfo info){
         final String LIT_STAR = "<:lit_star:714592297500803083>";
         final String UNLIT_STAR = "<:unlit_star:714592297689415770>";
-        
-        ResourceInfoManager.Rating rating = info.getRating();
+    
+        ResourceInfoManager.Stats stats = info.getStats();
+        double number;
+        try{
+            number = Double.parseDouble(stats.getRating());
+        }catch(Exception ex){
+            number = 0.0;
+        }
         
         DecimalFormat format = new DecimalFormat("#.##");
-        String rounded = format.format(rating.getAverage());
+        String rounded = format.format(number);
         
-        long lit_stars = Math.round(rating.getAverage());
+        long lit_stars = Math.round(number);
         
         if(lit_stars == 5){
             return String.format(
-                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %f')",
+                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %s')",
                     rounded,
                     LIT_STAR,
                     LIT_STAR,
@@ -168,12 +198,12 @@ public class CmdPlugin implements Command{
                     LIT_STAR,
                     LIT_STAR,
                     info.getUrl(),
-                    rating.getAverage()
+                    stats.getRating()
             );
         }else
         if(lit_stars == 4){
             return String.format(
-                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %f')",
+                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %s')",
                     rounded,
                     LIT_STAR,
                     LIT_STAR,
@@ -181,12 +211,12 @@ public class CmdPlugin implements Command{
                     LIT_STAR,
                     UNLIT_STAR,
                     info.getUrl(),
-                    rating.getAverage()
+                    stats.getRating()
             );
         }else
         if(lit_stars == 3){
             return String.format(
-                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %f')",
+                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %s')",
                     rounded,
                     LIT_STAR,
                     LIT_STAR,
@@ -194,12 +224,12 @@ public class CmdPlugin implements Command{
                     UNLIT_STAR,
                     UNLIT_STAR,
                     info.getUrl(),
-                    rating.getAverage()
+                    stats.getRating()
             );
         }else
         if(lit_stars == 2){
             return String.format(
-                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %f')",
+                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %s')",
                     rounded,
                     LIT_STAR,
                     LIT_STAR,
@@ -207,12 +237,12 @@ public class CmdPlugin implements Command{
                     UNLIT_STAR,
                     UNLIT_STAR,
                     info.getUrl(),
-                    rating.getAverage()
+                    stats.getRating()
             );
         }else
         if(lit_stars == 1){
             return String.format(
-                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %f')",
+                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %s')",
                     rounded,
                     LIT_STAR,
                     UNLIT_STAR,
@@ -220,11 +250,11 @@ public class CmdPlugin implements Command{
                     UNLIT_STAR,
                     UNLIT_STAR,
                     info.getUrl(),
-                    rating.getAverage()
+                    stats.getRating()
             );
         }else{
             return String.format(
-                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %f')",
+                    "[`%s` %s%s%s%s%s](%s 'Full Rating: %s')",
                     rounded,
                     UNLIT_STAR,
                     UNLIT_STAR,
@@ -232,7 +262,7 @@ public class CmdPlugin implements Command{
                     UNLIT_STAR,
                     UNLIT_STAR,
                     info.getUrl(),
-                    rating.getAverage()
+                    stats.getRating()
             );
         }
     }
