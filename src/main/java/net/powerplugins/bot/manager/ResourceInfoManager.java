@@ -130,8 +130,12 @@ public class ResourceInfoManager{
             return responseCode;
         }
     
+        private int getId(){
+            return id == null ? -1 : Integer.parseInt(id);
+        }
+        
         public String getUrl(){
-            return "https://www.spigotmc.org/resources/" + id;
+            return "https://www.spigotmc.org/resources/" + (getId() == -1 ? "" : getId());
         }
     
         public String getTitle(){
@@ -190,7 +194,7 @@ public class ResourceInfoManager{
         private final String currency;
         
         public Premium(){
-            this.price = "0.0";
+            this.price = "0.00";
             this.currency = null;
         }
     
@@ -203,7 +207,7 @@ public class ResourceInfoManager{
         }
         
         public boolean isPremium(){
-            return !price.equals("0.0");
+            return !price.equals("0.00");
         }
     }
     
