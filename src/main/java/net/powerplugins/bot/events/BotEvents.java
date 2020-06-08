@@ -28,7 +28,6 @@ public class BotEvents extends ListenerAdapter{
                 OnlineStatus.ONLINE, 
                 Activity.of(Activity.ActivityType.WATCHING, "plugins updating")
         );
-        bot.updateTopic();
         
         bot.checkPlugins();
         bot.setupCommands(event.getJDA());

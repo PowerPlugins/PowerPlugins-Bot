@@ -20,28 +20,12 @@ guild:
       #
       # The ID of the channel.
       id: ''
-      #
-      # The topic of the channel.
-      topic:
-      - 'Channel for posting updates related to plugins.'
-      - 'This can be adding, updating or removing a plugin.'
-      - ''
-      - '**(Un)subscribe to plugin-updates**:'
-      - 'Head over to <#661363993948192809> and click the <:plugin:661364737422000155> reaction.'
-      - ''
-      - '**Currently loaded plugins**:'
-      - '%plugins% plugins loaded.'
     #
     # The plugins channel where a list of plugins on the server is posted.
     plugins:
       #
       # The ID of the channel.
       id: ''
-      #
-      # The topic of the channel.
-      topic:
-      - 'Current list of all plugins installed.'
-      - 'This list is updated through the bot <@712285539163963444>'
   #
   # The ID of the role, which would be mentioned for plugin-updates.
   role: ''

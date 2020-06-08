@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'net.powerplugins'
-version '1.2.3'
+version '1.2.5'
 
 repositories {
     jcenter()
@@ -26,5 +26,9 @@ dependencies {
 
 shadowJar {
     relocate('net.dv8tion.jda', 'net.powerplugins.jda')
+    relocate('com.fasterxml.jackson', 'net.powerplugins.jackson')
+    relocate('okhttp3', 'net.powerplugins.okhttp3')
+    relocate('okio', 'net.powerplugins.okio')
+    
     archiveFileName = 'PowerPlugins.jar'
 }

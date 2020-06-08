@@ -9,10 +9,7 @@ import net.dv8tion.jda.api.utils.MarkdownUtil;
 import net.powerplugins.bot.PowerPlugins;
 import org.bukkit.plugin.Plugin;
 
-import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.stream.Collectors;
 
 public class MessageManager{
     

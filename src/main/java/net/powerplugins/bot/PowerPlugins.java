@@ -160,34 +160,6 @@ public class PowerPlugins extends JavaPlugin{
         RECONNECTING
     }
     
-    public void updateTopic(){
-        String pluginUpdatesId = getConfig().getString("guild.channels.pluginUpdates.id");
-        if(pluginUpdatesId == null)
-            return;
-        
-        TextChannel pluginUpdatesChannel = getJda().getTextChannelById(pluginUpdatesId);
-        if(pluginUpdatesChannel == null)
-            return;
-    
-        pluginUpdatesChannel.getManager().setTopic(
-                String.join("\n", getConfig().getStringList("guild.channels.pluginUpdates.topic"))
-                      .replace("%plugins%", String.valueOf(getServer().getPluginManager().getPlugins().length))
-        ).queue();
-        
-        String pluginsId = getConfig().getString("guild.channels.plugins.id");
-        if(pluginsId == null)
-            return;
-        
-        TextChannel pluginsChannel = getJda().getTextChannelById(pluginsId);
-        if(pluginsChannel == null)
-            return;
-        
-        pluginsChannel.getManager().setTopic(
-                String.join("\n", getConfig().getStringList("guild.channels.plugins.topic"))
-                      .replace("%plugins%", String.valueOf(getServer().getPluginManager().getPlugins().length))
-        ).queue();
-    }
-    
     public void sendMessage(TextChannel channel, String message){
         messageManager.sendMessage(channel, message);
     }

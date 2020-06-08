@@ -133,7 +133,7 @@ public class CmdPlugin implements Command{
                         "Downloads",
                         String.format(
                                 "`%s`",
-                                info.getStats().getDownloads()
+                                getDownloads(info)
                         ),
                         true
                 )
@@ -163,12 +163,26 @@ public class CmdPlugin implements Command{
                     String.format(
                             "`%s %s`",
                             info.getPremium().getPrice(),
-                            info.getPremium().getCurrency()
+                            info.getPremium().getCurrency().toUpperCase()
                     ),
                     true
             );
         
         return builder.build();
+    }
+    
+    private String getDownloads(ResourceInfoManager.ResourceInfo info){
+        int downloads;
+        try{
+            downloads = Integer.parseInt(info.getStats().getDownloads());
+        }catch(NumberFormatException ex){
+            downloads = -1;
+        }
+        
+        if(downloads == -1)
+            return "?";
+        
+        return new DecimalFormat("#,###,###").format(downloads);
     }
     
     private String getRatingIcons(ResourceInfoManager.ResourceInfo info){
@@ -179,7 +193,7 @@ public class CmdPlugin implements Command{
         double number;
         try{
             number = Double.parseDouble(stats.getRating());
-        }catch(Exception ex){
+        }catch(NullPointerException | NumberFormatException ex){
             number = 0.0;
         }
         
