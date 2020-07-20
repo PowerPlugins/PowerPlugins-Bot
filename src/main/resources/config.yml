@@ -2,30 +2,10 @@
 # PowerPlugins Bot
 #
 
-#
-# The token of the Bot
-bot:
-  token: ''
-
 guild:
   #
-  # The prefix of the bot to use in the Guild
-  prefix: 'p!'
-  #
-  # Channel specific settings.
-  channels:
-    #
-    # The plugin-updates channel where notifications about plugin updates are posted.
-    pluginUpdates:
-      #
-      # The ID of the channel.
-      id: ''
-    #
-    # The plugins channel where a list of plugins on the server is posted.
-    plugins:
-      #
-      # The ID of the channel.
-      id: ''
+  # The webhook URL to use for posting updates.
+  webhook: ''
   #
   # The ID of the role, which would be mentioned for plugin-updates.
   role: ''

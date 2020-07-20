@@ -15,7 +15,12 @@ public class ServerEvents implements Listener{
     }
     
     @EventHandler
-    public void onServerLoad(ServerLoadEvent event){
-        bot.startBot();
+    public void onServerLoad(ServerLoadEvent ignored){
+        if(bot.getWebhookManager() == null) {
+            bot.getLogger().warning("WebhookManager is not activated! Skipping Plugin checks...");
+            return;
+        }
+        
+        bot.checkPlugins();
     }
 }
