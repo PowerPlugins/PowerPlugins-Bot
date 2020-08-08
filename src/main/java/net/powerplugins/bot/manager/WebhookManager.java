@@ -9,6 +9,8 @@ import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import net.powerplugins.bot.PowerPlugins;
 import org.bukkit.plugin.Plugin;
 
+import java.util.List;
+
 public class WebhookManager{
     
     private final PowerPlugins bot;
@@ -42,9 +44,10 @@ public class WebhookManager{
                     )
             )
             .setDescription(String.format(
-                    "%s has been added to PowerPlugins and can now be discovered on the server.\n" +
+                    "`%s` by %s has been added to PowerPlugins and can now be found on the server.\n" +
                     "Use the command `/pl %s` on the server for more info.",
                     plugin.getName(),
+                    getAuthors(plugin.getDescription().getAuthors()),
                     plugin.getName()
             ));
         }else{
@@ -57,8 +60,9 @@ public class WebhookManager{
                     )
             )
             .setDescription(String.format(
-                    "%s has been updated to %s",
+                    "`%s` by %s has been updated to `%s`",
                     plugin.getName(),
+                    getAuthors(plugin.getDescription().getAuthors()),
                     plugin.getDescription().getVersion()
             ))
             .addField(new WebhookEmbed.EmbedField(
@@ -86,5 +90,17 @@ public class WebhookManager{
     
     public void finish(){
         client.close();
+    }
+    
+    private String getAuthors(List<String> authorsList){
+        String authors = String.join(", ", authorsList);
+        
+        if(!authors.contains(","))
+            return authors;
+        
+        StringBuilder builder = new StringBuilder(authors);
+        builder.replace(authors.lastIndexOf(","), authors.lastIndexOf(",") + 1, " and");
+        
+        return builder.toString();
     }
 }

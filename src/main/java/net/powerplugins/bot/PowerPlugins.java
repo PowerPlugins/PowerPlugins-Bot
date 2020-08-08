@@ -43,6 +43,7 @@ public class PowerPlugins extends JavaPlugin{
     }
     
     public void checkPlugins(){
+        getLogger().info("Performing plugin checks...");
         for(Plugin plugin : retrievePlugins())
             webhookManager.sendUpdate(plugin);
         
