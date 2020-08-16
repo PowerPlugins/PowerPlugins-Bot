@@ -9,10 +9,7 @@ import java.io.IOException;
 
 public class FileManager{
     
-    private static final String URL_SPIGOT = "https://spigotmc.org/resources/";
-    
     private final PowerPlugins instance;
-    
     private final File folder;
     
     public FileManager(PowerPlugins instance){
@@ -30,12 +27,12 @@ public class FileManager{
         
         if(config.get("info.version") == null){
             config.set("info.version", plugin.getDescription().getVersion());
-            config.set("info.url", URL_SPIGOT);
+            config.set("info.url", "");
             
             try{
                 config.save(file);
                 
-                return new PluginFile(plugin.getDescription().getVersion(), URL_SPIGOT, config);
+                return new PluginFile(plugin.getDescription().getVersion(), config);
             }catch(IOException ex){
                 return null;
             }
@@ -50,7 +47,7 @@ public class FileManager{
     }
     
     private File getFile(String name){
-        File file = new File(instance.getDataFolder() + "/plugins", name + ".yml");
+        File file = new File(folder, name + ".yml");
         if(folder.mkdirs())
             instance.getLogger().info("Created folder 'plugins'");
         
@@ -84,8 +81,8 @@ public class FileManager{
                     return false;
                 
                 config.set("info.version", plugin.getDescription().getVersion());
-                
                 config.save(file);
+                
                 return true;
             }catch(IOException ex){
                 instance.getLogger().warning("Could not update file " + plugin.getName().toLowerCase() + ".yml!");
@@ -103,6 +100,10 @@ public class FileManager{
         private final String version;
         private final String url;
         private final YamlConfiguration configuration;
+        
+        public PluginFile(String version, YamlConfiguration configuration){
+            this(version, "", configuration);
+        }
         
         public PluginFile(String version, String url, YamlConfiguration configuration){
             this.version = version;
@@ -123,7 +124,7 @@ public class FileManager{
         }
         
         public boolean isNew(){
-            return url.equalsIgnoreCase(URL_SPIGOT);
+            return url.isEmpty();
         }
     }
 }

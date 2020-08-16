@@ -24,53 +24,14 @@ public class WebhookManager{
     public void sendUpdate(Plugin plugin){
         FileManager.PluginFile config = bot.getFileManager().getPluginFile(plugin);
         if(config == null) {
-            bot.getLogger().warning("Skipped plugin " + plugin.getName() + ". No plugin file present...");
+            bot.getLogger().warning("Plugin " + plugin.getName() + "was skipped. No plugin file present...");
             return;
         }
     
         if(!bot.getFileManager().isDifferent(plugin, config))
             return;
-    
-        WebhookEmbedBuilder builder = new WebhookEmbedBuilder()
-                .setColor(0xF39C12);
         
-        if(config.isNew()){
-            bot.getLogger().info(plugin.getName() + " is new. Sending message...");
-            
-            builder.setTitle(
-                    new WebhookEmbed.EmbedTitle(
-                            "Added " + plugin.getName() + " to the Server!", 
-                            null
-                    )
-            )
-            .setDescription(String.format(
-                    "`%s` by %s has been added to PowerPlugins and can now be found on the server.\n" +
-                    "Use the command `/pl %s` on the server for more info.",
-                    plugin.getName(),
-                    getAuthors(plugin.getDescription().getAuthors()),
-                    plugin.getName()
-            ));
-        }else{
-            bot.getLogger().info(plugin.getName() + " was updated. Sending message...");
-            
-            builder.setTitle(
-                    new WebhookEmbed.EmbedTitle(
-                            "Updated " + plugin.getName() + "!",
-                            config.getUrl()
-                    )
-            )
-            .setDescription(String.format(
-                    "`%s` by %s has been updated to `%s`",
-                    plugin.getName(),
-                    getAuthors(plugin.getDescription().getAuthors()),
-                    plugin.getDescription().getVersion()
-            ))
-            .addField(new WebhookEmbed.EmbedField(
-                    false,
-                    "Spigot page:",
-                    config.getUrl()
-            ));
-        }
+        WebhookEmbed embed = getEmbed(plugin, config.getUrl(), config.isNew());
         
         String roleId = bot.getConfig().getString("guild.role");
         String tag;
@@ -82,7 +43,7 @@ public class WebhookManager{
         
         WebhookMessage msg = new WebhookMessageBuilder()
                 .setContent(tag)
-                .addEmbeds(builder.build())
+                .addEmbeds(embed)
                 .build();
         
         client.send(msg);
@@ -102,5 +63,66 @@ public class WebhookManager{
         builder.replace(authors.lastIndexOf(","), authors.lastIndexOf(",") + 1, " and");
         
         return builder.toString();
+    }
+    
+    private WebhookEmbed getEmbed(Plugin plugin, String url, boolean isNew){
+        WebhookEmbed embed;
+        if(isNew){
+            bot.getLogger().info(plugin.getName() + " was added to the Server. Sending message...");
+            embed = new WebhookEmbedBuilder()
+                    .setColor(0xF39C12)
+                    .setTitle(
+                            new WebhookEmbed.EmbedTitle(
+                                    "Added " + plugin.getName() + " to the Server",
+                                    null
+                            )
+                    )
+                    .setDescription(String.format(
+                            "`%s` has been added to PowerPlugins and can now be found on the Server.\n" +
+                            "Use `/pl %s` on the server for more info.",
+                            plugin.getName(),
+                            plugin.getName()
+                    ))
+                    .addField(
+                            new WebhookEmbed.EmbedField(
+                                    false,
+                                    "Plugin Author(s):",
+                                    getAuthors(plugin.getDescription().getAuthors())
+                            )
+                    )
+                    .build(); 
+        }else{
+            bot.getLogger().info(plugin.getName() + " was updated. Sending message...");
+            embed = new WebhookEmbedBuilder()
+                    .setColor(0xF39C12)
+                    .setTitle(
+                            new WebhookEmbed.EmbedTitle(
+                                    "Updated " + plugin.getName() + "!",
+                                    url
+                            )
+                    )
+                    .setDescription(String.format(
+                            "`%s` has been updated to `%s`",
+                            plugin.getName(),
+                            plugin.getDescription().getVersion()
+                    ))
+                    .addField(
+                            new WebhookEmbed.EmbedField(
+                                    false,
+                                    "Plugin Author(s):",
+                                    getAuthors(plugin.getDescription().getAuthors())
+                            )
+                    )
+                    .addField(
+                            new WebhookEmbed.EmbedField(
+                                    false,
+                                    "Plugin Page:",
+                                    url
+                            )
+                    )
+                    .build();
+        }
+        
+        return embed;
     }
 }
