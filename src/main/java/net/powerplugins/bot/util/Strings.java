@@ -2,10 +2,12 @@ package net.powerplugins.bot.util;
 
 public class Strings{
     
-    public static final String HEADER = "&b&m----------&r&b[ {title} &b]&m----------";
+    public static final String HEADER_FREE    = "&b&m---------------&b[ &aFree &b]&m---------------";
+    public static final String HEADER_PREMIUM = "&b&m--------------&b[ &6Premium &b]&m--------------";
+    public static final String HEADER_PRIVATE = "&b&m--------------&b[ &7Private &b]&m--------------";
     
-    public static final String FOOTER_MAIN = "&b&m-----------------------------------";
-    public static final String FOOTER_PAGE = "&b&m----------&r&b[ &9Page {page} &b]&m----------";
+    public static final String FOOTER_MAIN = "&b&m-------------------------------------";
+    public static final String FOOTER_PAGE = "&b&m--------------&b[ &9Page {page} &b]&m--------------";
     
     public static final String NAV_PREV_ACTIVE   = "&b[&a<&b]";
     

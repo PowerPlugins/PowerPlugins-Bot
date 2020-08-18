@@ -27,17 +27,16 @@ public class FileManager{
             return null;
         
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
-        List<String> dependencies = new ArrayList<>();
-    
-        dependencies.addAll(plugin.getDescription().getDepend());
-        dependencies.addAll(plugin.getDescription().getSoftDepend());
+        List<String> depends = plugin.getDescription().getDepend();
+        List<String> softDepends = plugin.getDescription().getSoftDepend();
         
         if(config.get("info.name") == null){
             
             config.set("info.name", plugin.getName());
             config.set("info.authors", plugin.getDescription().getAuthors());
             config.set("info.version", plugin.getDescription().getVersion());
-            config.set("info.dependencies", dependencies);
+            config.set("info.depends", depends);
+            config.set("info.softdepends", softDepends);
             config.set("info.url", "");
             config.set("info.description", "No description provided");
             config.set("info.category", "private");
@@ -53,7 +52,8 @@ public class FileManager{
                 return null;
             }
         }else{
-            config.set("info.dependencies", dependencies);
+            config.set("info.depends", depends);
+            config.set("info.softdepends", softDepends);
             
             try{
                 config.save(file);
@@ -62,7 +62,8 @@ public class FileManager{
                         config.getString("info.name"),
                         config.getStringList("info.authors"),
                         config.getString("info.version"),
-                        config.getStringList("info.dependencies"),
+                        config.getStringList("info.depends"),
+                        config.getStringList("info.softdepends"),
                         config.getString("info.url"),
                         config.getString("info.description"),
                         config.getString("info.category"),
@@ -133,7 +134,8 @@ public class FileManager{
         private final String url;
         private final String description;
         private final String category;
-        private final List<String> dependencies;
+        private final List<String> depends;
+        private final List<String> softDepends;
         
         private final YamlConfiguration configuration;
         
@@ -143,6 +145,7 @@ public class FileManager{
                     desc.getAuthors(),
                     desc.getVersion(),
                     new ArrayList<>(),
+                    new ArrayList<>(),
                     "",
                     "No description provided",
                     "private",
@@ -150,12 +153,13 @@ public class FileManager{
             );
         }
         
-        public PluginFile(String name, List<String> authors, String version, List<String> dependencies, String url, String description, 
-                          String category, YamlConfiguration configuration){
+        public PluginFile(String name, List<String> authors, String version, List<String> depends, List<String> softDepends,
+                          String url, String description, String category, YamlConfiguration configuration){
             this.name = name;
             this.authors = authors;
             this.version = version;
-            this.dependencies = dependencies;
+            this.depends = depends;
+            this.softDepends = softDepends;
             
             this.url = url;
             this.description = description;
@@ -188,8 +192,12 @@ public class FileManager{
             return category;
         }
     
-        public List<String> getDependencies(){
-            return dependencies;
+        public List<String> getDepends(){
+            return depends;
+        }
+    
+        public List<String> getSoftDepends(){
+            return softDepends;
         }
     
         public YamlConfiguration getConfiguration(){

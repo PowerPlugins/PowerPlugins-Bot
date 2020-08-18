@@ -39,7 +39,7 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
         if(args.length == 0){
             clear(player);
             
-            JSONMessage json = JSONMessage.create(color(Strings.HEADER.replace("{title}", color("&9&lPowerPlugins"))))
+            JSONMessage json = JSONMessage.create(color(Strings.FOOTER_MAIN))
                     .newline()
                     .newline()
                     .then(color("&7Please choose a Category.")).newline()
@@ -75,7 +75,7 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
             return true;
         }else
         if(args[0].equalsIgnoreCase("free")){
-            List<JSONMessage> free = getPages("free", color(Strings.CAT_FREE));
+            List<JSONMessage> free = getPages("free", color(Strings.HEADER_FREE));
             if(free.isEmpty()){
                 player.sendMessage(color("&cThis category doesn't have any Plugins listed."));
                 return true;
@@ -114,7 +114,7 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
             }
         }else
         if(args[0].equalsIgnoreCase("premium")){
-            List<JSONMessage> premium = getPages("premium", color(Strings.CAT_PREMIUM));
+            List<JSONMessage> premium = getPages("premium", color(Strings.HEADER_PREMIUM));
             if(premium.isEmpty()){
                 player.sendMessage(color("&cThis category doesn't have any Plugins listed."));
                 return true;
@@ -153,7 +153,7 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
             }
         }else
         if(args[0].equalsIgnoreCase("private")){
-            List<JSONMessage> priv = getPages("private", color(Strings.CAT_PRIVATE));
+            List<JSONMessage> priv = getPages("private", color(Strings.HEADER_PRIVATE));
             if(priv.isEmpty()){
                 player.sendMessage(color("&cThis category doesn't have any Plugins listed."));
                 return true;
@@ -275,7 +275,7 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
                         .runCommand("/powerplugins");
             }
             
-            json.then(color(Strings.HEADER.replace("{title}", title)));
+            json.then(title);
     
             if(curPage < total){
                 json.then(color(Strings.NAV_NEXT_ACTIVE))
@@ -344,23 +344,27 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
     
     private JSONMessage getPluginInfo(FileManager.PluginFile pluginFile){
         String category;
+        String title;
         switch(pluginFile.getCategory()){
             case "free":
                 category = color(Strings.CAT_FREE);
+                title = color(Strings.HEADER_FREE);
                 break;
             case "premium":
                 category = color(Strings.CAT_PREMIUM);
+                title = color(Strings.HEADER_PREMIUM);
                 break;
             default:
             case "private":
                 category = color(Strings.CAT_PRIVATE);
+                title = color(Strings.HEADER_PRIVATE);
                 break;
         }
         
         JSONMessage json = JSONMessage.create(color(Strings.NAV_PREV_ACTIVE))
                 .tooltip(color("&7Back to Plugin list."))
                 .runCommand("/powerplugins " + pluginFile.getCategory())
-                .then(color(Strings.HEADER.replace("{title}", category)))
+                .then(color(title))
                 .then(color(Strings.NAV_NEXT_INACTIVE))
                 .newline()
                 .then(color(
@@ -369,18 +373,35 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
                                .replace("{version}", pluginFile.getVersion())
                 ))
                 .newline()
-                .then(color(Strings.PLUGIN_AUTHORS.replace("{authors}", plugin.getAuthors(pluginFile.getAuthors()))))
-                .newline();
+                .newline()
+                .then(color(Strings.PLUGIN_AUTHORS.replace("{authors}", plugin.getAuthors(pluginFile.getAuthors()))));
         
-        if(!pluginFile.getDependencies().isEmpty()){
-            json.then(color(Strings.PLUGIN_DEPENDENCIES));
-            for(String dependency : pluginFile.getDependencies()){
+        if(!pluginFile.getDepends().isEmpty() || !pluginFile.getSoftDepends().isEmpty()){
+            Map<String, Boolean> dependencies = new HashMap<>();
+            
+            if(!pluginFile.getDepends().isEmpty()){
+                for(String depends : pluginFile.getDepends())
+                    dependencies.put(depends, true);
+            }
+            
+            if(!pluginFile.getSoftDepends().isEmpty()){
+                for(String softDepend : pluginFile.getSoftDepends())
+                    dependencies.put(softDepend, false);
+            }
+            
+            Map<String, Boolean> sorted = new TreeMap<>(dependencies);
+            
+            json.newline()
+                .then(color(Strings.PLUGIN_DEPENDENCIES));
+            for(String dependency : sorted.keySet()){
                 json.newline()
                     .then(color("&7- &b%s", dependency))
                     .tooltip(color(
-                            "&7Click to view Plugin info about %s.\n" +
+                            "&7Type: &b%s\n" +
                             "\n" +
-                            "&cNote that this dependency might not be on the Server.",
+                            "&7Click to view Information about %s.\n" +
+                            "&cNote: The dependency Type is based on the plugins' plugin.yml!",
+                            sorted.get(dependency) ? "Depend &7[&cRequired&7]" : "Softdepend &7[&aNot Required&7]",
                             dependency
                     ))
                     .runCommand("/powerplugins info " + dependency);
