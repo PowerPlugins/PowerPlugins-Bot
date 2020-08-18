@@ -3,9 +3,12 @@ package net.powerplugins.bot.manager;
 import net.powerplugins.bot.PowerPlugins;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.plugin.PluginDescriptionFile;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
 
 public class FileManager{
     
@@ -24,24 +27,50 @@ public class FileManager{
             return null;
         
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
+        List<String> dependencies = new ArrayList<>();
+    
+        dependencies.addAll(plugin.getDescription().getDepend());
+        dependencies.addAll(plugin.getDescription().getSoftDepend());
         
-        if(config.get("info.version") == null){
+        if(config.get("info.name") == null){
+            
+            config.set("info.name", plugin.getName());
+            config.set("info.authors", plugin.getDescription().getAuthors());
             config.set("info.version", plugin.getDescription().getVersion());
+            config.set("info.dependencies", dependencies);
             config.set("info.url", "");
+            config.set("info.description", "No description provided");
+            config.set("info.category", "private");
             
             try{
                 config.save(file);
                 
-                return new PluginFile(plugin.getDescription().getVersion(), config);
+                return new PluginFile(
+                        plugin.getDescription(),
+                        config
+                );
             }catch(IOException ex){
                 return null;
             }
         }else{
-            return new PluginFile(
-                    config.getString("info.version"), 
-                    config.getString("info.url"),
-                    config
-            );
+            config.set("info.dependencies", dependencies);
+            
+            try{
+                config.save(file);
+    
+                return new PluginFile(
+                        config.getString("info.name"),
+                        config.getStringList("info.authors"),
+                        config.getString("info.version"),
+                        config.getStringList("info.dependencies"),
+                        config.getString("info.url"),
+                        config.getString("info.description"),
+                        config.getString("info.category"),
+                        config
+                );
+            }catch(IOException ex){
+                return null;
+            }
         }
         
     }
@@ -97,18 +126,50 @@ public class FileManager{
     
     public static class PluginFile{
         
+        private final String name;
+        private final List<String> authors;
         private final String version;
+        
         private final String url;
+        private final String description;
+        private final String category;
+        private final List<String> dependencies;
+        
         private final YamlConfiguration configuration;
         
-        public PluginFile(String version, YamlConfiguration configuration){
-            this(version, "", configuration);
+        public PluginFile(PluginDescriptionFile desc, YamlConfiguration configuration){
+            this(
+                    desc.getName(),
+                    desc.getAuthors(),
+                    desc.getVersion(),
+                    new ArrayList<>(),
+                    "",
+                    "No description provided",
+                    "private",
+                    configuration
+            );
         }
         
-        public PluginFile(String version, String url, YamlConfiguration configuration){
+        public PluginFile(String name, List<String> authors, String version, List<String> dependencies, String url, String description, 
+                          String category, YamlConfiguration configuration){
+            this.name = name;
+            this.authors = authors;
             this.version = version;
+            this.dependencies = dependencies;
+            
             this.url = url;
+            this.description = description;
+            this.category = category;
+            
             this.configuration = configuration;
+        }
+    
+        public String getName(){
+            return name;
+        }
+    
+        public List<String> getAuthors(){
+            return authors;
         }
     
         public String getVersion(){
@@ -117,6 +178,18 @@ public class FileManager{
     
         public String getUrl(){
             return url;
+        }
+    
+        public String getDescription(){
+            return description;
+        }
+    
+        public String getCategory(){
+            return category;
+        }
+    
+        public List<String> getDependencies(){
+            return dependencies;
         }
     
         public YamlConfiguration getConfiguration(){

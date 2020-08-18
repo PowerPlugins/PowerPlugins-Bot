@@ -9,31 +9,29 @@ import club.minnced.discord.webhook.send.WebhookMessageBuilder;
 import net.powerplugins.bot.PowerPlugins;
 import org.bukkit.plugin.Plugin;
 
-import java.util.List;
-
 public class WebhookManager{
     
-    private final PowerPlugins bot;
+    private final PowerPlugins instance;
     private final WebhookClient client;
     
-    public WebhookManager(PowerPlugins bot, String url){
-        this.bot = bot;
+    public WebhookManager(PowerPlugins instance, String url){
+        this.instance = instance;
         this.client = new WebhookClientBuilder(url).build();
     }
     
     public void sendUpdate(Plugin plugin){
-        FileManager.PluginFile config = bot.getFileManager().getPluginFile(plugin);
+        FileManager.PluginFile config = instance.getFileManager().getPluginFile(plugin);
         if(config == null) {
-            bot.getLogger().warning("Plugin " + plugin.getName() + "was skipped. No plugin file present...");
+            instance.getLogger().warning("Plugin " + plugin.getName() + "was skipped. No plugin file present...");
             return;
         }
     
-        if(!bot.getFileManager().isDifferent(plugin, config))
+        if(!instance.getFileManager().isDifferent(plugin, config))
             return;
         
         WebhookEmbed embed = getEmbed(plugin, config.getUrl(), config.isNew());
         
-        String roleId = bot.getConfig().getString("guild.role");
+        String roleId = instance.getConfig().getString("guild.role");
         String tag;
         if(roleId == null){
             tag = "\u200E"; // Zero width space
@@ -53,22 +51,10 @@ public class WebhookManager{
         client.close();
     }
     
-    private String getAuthors(List<String> authorsList){
-        String authors = String.join(", ", authorsList);
-        
-        if(!authors.contains(","))
-            return authors;
-        
-        StringBuilder builder = new StringBuilder(authors);
-        builder.replace(authors.lastIndexOf(","), authors.lastIndexOf(",") + 1, " and");
-        
-        return builder.toString();
-    }
-    
     private WebhookEmbed getEmbed(Plugin plugin, String url, boolean isNew){
         WebhookEmbed embed;
         if(isNew){
-            bot.getLogger().info(plugin.getName() + " was added to the Server. Sending message...");
+            instance.getLogger().info(plugin.getName() + " was added to the Server. Sending message...");
             embed = new WebhookEmbedBuilder()
                     .setColor(0xF39C12)
                     .setTitle(
@@ -87,12 +73,12 @@ public class WebhookManager{
                             new WebhookEmbed.EmbedField(
                                     false,
                                     "Plugin Author(s):",
-                                    getAuthors(plugin.getDescription().getAuthors())
+                                    instance.getAuthors(plugin.getDescription().getAuthors())
                             )
                     )
                     .build(); 
         }else{
-            bot.getLogger().info(plugin.getName() + " was updated. Sending message...");
+            instance.getLogger().info(plugin.getName() + " was updated. Sending message...");
             embed = new WebhookEmbedBuilder()
                     .setColor(0xF39C12)
                     .setTitle(
@@ -110,7 +96,7 @@ public class WebhookManager{
                             new WebhookEmbed.EmbedField(
                                     false,
                                     "Plugin Author(s):",
-                                    getAuthors(plugin.getDescription().getAuthors())
+                                    instance.getAuthors(plugin.getDescription().getAuthors())
                             )
                     )
                     .addField(

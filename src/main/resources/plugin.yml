@@ -1,8 +1,16 @@
 name: PowerPlugins
-version: '1.3.4'
+version: '1.4.1'
 
 author: Andre_601
 
 api-version: '1.13'
 
 main: net.powerplugins.bot.PowerPlugins
+
+commands: 
+  powerplugins:
+    aliases:
+    - powerp
+    - pplugins
+    description: 'Improved Plugins command to display plugins in a new and interesting order...'
+    usage: '/<command> [category [page]|info <plugin>]'

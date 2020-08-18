@@ -7,20 +7,20 @@ import org.bukkit.event.server.ServerLoadEvent;
 
 public class ServerEvents implements Listener{
     
-    private final PowerPlugins bot;
+    private final PowerPlugins plugin;
     
-    public ServerEvents(PowerPlugins bot){
-        this.bot = bot;
-        bot.getServer().getPluginManager().registerEvents(this, bot);
+    public ServerEvents(PowerPlugins plugin){
+        this.plugin = plugin;
+        plugin.getServer().getPluginManager().registerEvents(this, plugin);
     }
     
     @EventHandler
     public void onServerLoad(ServerLoadEvent ignored){
-        if(bot.getWebhookManager() == null) {
-            bot.getLogger().warning("WebhookManager is not activated! Skipping Plugin checks...");
+        if(plugin.getWebhookManager() == null) {
+            plugin.getLogger().warning("WebhookManager is not activated! Skipping Plugin checks...");
             return;
         }
         
-        bot.checkPlugins();
+        plugin.checkPlugins();
     }
 }
