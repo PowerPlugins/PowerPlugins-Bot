@@ -14,7 +14,7 @@ public class Strings{
     public static final String NAV_NEXT_ACTIVE   = "&b[&a>&b]";
     public static final String NAV_NEXT_INACTIVE = "&b[&7>&b]";
     
-    public static final String PLUGIN_SIMPLE       = "&b{name} &7- &f{author} {version}";
+    public static final String PLUGIN_SIMPLE       = "&b{name} &7- &f{author} &7[&f{version}&7]";
     public static final String PLUGIN_NAME         = "&b{name} &7[&f{version}&7]";
     public static final String PLUGIN_AUTHORS      = "&7Authors: &b{authors}";
     public static final String PLUGIN_DEPENDENCIES = "&7Dependencies:";
