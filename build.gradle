@@ -18,7 +18,7 @@ repositories {
 // PlotSquared API
 dependencies {
     implementation('org.spigotmc:spigot-api:1.15.1-R0.1-SNAPSHOT')
-    implementation('club.minnced:discord-webhooks:0.4.0')
+    implementation('club.minnced:discord-webhooks:0.4.1')
     implementation('me.rayzr522:jsonmessage:1.2.1')
     implementation('com.google.guava:guava:29.0-jre')
     
