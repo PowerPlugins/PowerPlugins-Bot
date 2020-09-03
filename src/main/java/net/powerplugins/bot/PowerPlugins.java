@@ -64,9 +64,12 @@ public class PowerPlugins extends JavaPlugin{
     public void checkPlugins(){
         getLogger().info("Performing plugin checks...");
         for(Plugin plugin : retrievePlugins())
-            webhookManager.sendUpdate(plugin);
+            webhookManager.checkUpdate(plugin);
         
-        getLogger().info("Plugin checks finished!");
+        getLogger().info("Plugin checks finished! Sending webhooks...");
+        webhookManager.send();
+        
+        getLogger().info("Finished sending of webhooks. Cleaning up WebhookManager...");
         webhookManager.finish();
     }
     

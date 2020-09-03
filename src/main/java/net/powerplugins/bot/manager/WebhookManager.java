@@ -6,20 +6,26 @@ import club.minnced.discord.webhook.send.WebhookEmbed;
 import club.minnced.discord.webhook.send.WebhookEmbedBuilder;
 import club.minnced.discord.webhook.send.WebhookMessage;
 import club.minnced.discord.webhook.send.WebhookMessageBuilder;
+import com.google.common.collect.Lists;
 import net.powerplugins.bot.PowerPlugins;
 import org.bukkit.plugin.Plugin;
+
+import java.util.ArrayList;
+import java.util.List;
 
 public class WebhookManager{
     
     private final PowerPlugins instance;
     private final WebhookClient client;
     
+    private final List<WebhookEmbed> embeds = new ArrayList<>();
+    
     public WebhookManager(PowerPlugins instance, String url){
         this.instance = instance;
         this.client = new WebhookClientBuilder(url).build();
     }
     
-    public void sendUpdate(Plugin plugin){
+    public void checkUpdate(Plugin plugin){
         FileManager.PluginFile config = instance.getFileManager().getPluginFile(plugin);
         if(config == null) {
             instance.getLogger().warning("Plugin " + plugin.getName() + "was skipped. No plugin file present...");
@@ -29,22 +35,33 @@ public class WebhookManager{
         if(!instance.getFileManager().isDifferent(plugin, config))
             return;
         
-        WebhookEmbed embed = getEmbed(plugin, config.getUrl(), config.isNew());
-        
-        String roleId = instance.getConfig().getString("guild.role");
-        String tag;
-        if(roleId == null){
-            tag = "\u200E"; // Zero width space
-        }else{
-            tag = "<@&" + roleId + ">";
+        embeds.add(getEmbed(plugin, config.getUrl(), config.isNew()));
+    }
+    
+    public void send(){
+        if(embeds.isEmpty()){
+            instance.getLogger().info("No updates...");
+            return;
         }
         
-        WebhookMessage msg = new WebhookMessageBuilder()
-                .setContent(tag)
-                .addEmbeds(embed)
-                .build();
+        List<List<WebhookEmbed>> groups = Lists.partition(embeds, 10);
         
-        client.send(msg);
+        for(int i = 0; i < groups.size(); i++){
+            String roleId = instance.getConfig().getString("guild.role");
+            String tag;
+            if(i == 0 && roleId != null){
+                tag = "<@&" + roleId + ">";
+            }else{
+                tag = "\u200E";
+            }
+            
+            WebhookMessage msg = new WebhookMessageBuilder()
+                    .setContent(tag)
+                    .addEmbeds(groups.get(i))
+                    .build();
+            
+            client.send(msg);
+        }
     }
     
     public void finish(){
@@ -54,7 +71,6 @@ public class WebhookManager{
     private WebhookEmbed getEmbed(Plugin plugin, String url, boolean isNew){
         WebhookEmbed embed;
         if(isNew){
-            instance.getLogger().info(plugin.getName() + " was added to the Server. Sending message...");
             embed = new WebhookEmbedBuilder()
                     .setColor(0xF39C12)
                     .setTitle(
@@ -78,7 +94,6 @@ public class WebhookManager{
                     )
                     .build(); 
         }else{
-            instance.getLogger().info(plugin.getName() + " was updated. Sending message...");
             embed = new WebhookEmbedBuilder()
                     .setColor(0xF39C12)
                     .setTitle(
