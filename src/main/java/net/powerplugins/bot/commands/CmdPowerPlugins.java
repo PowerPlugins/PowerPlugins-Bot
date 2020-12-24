@@ -362,7 +362,7 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
         }
         
         JSONMessage json = JSONMessage.create(color(Strings.NAV_PREV_ACTIVE))
-                .tooltip(color("&7Back to Plugin list."))
+                .tooltip(color("&7Back to Plugin category %s.", category))
                 .runCommand("/powerplugins " + pluginFile.getCategory())
                 .then(color(title))
                 .then(color(Strings.NAV_NEXT_INACTIVE))

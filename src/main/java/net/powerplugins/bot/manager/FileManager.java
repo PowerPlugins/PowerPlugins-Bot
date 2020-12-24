@@ -96,8 +96,11 @@ public class FileManager{
     }
     
     public boolean isDifferent(Plugin plugin, PluginFile pluginFile){
-        if(pluginFile.isNew())
+        if(pluginFile.isNew()){
+            instance.getLogger().info(plugin.getName() + " has been recently added. Adding to Queue...");
+            
             return true;
+        }
         
         String currentVersion = pluginFile.getVersion();
         String newVersion = plugin.getDescription().getVersion();
@@ -112,6 +115,8 @@ public class FileManager{
                 
                 config.set("info.version", plugin.getDescription().getVersion());
                 config.save(file);
+                
+                instance.getLogger().info(plugin.getName() + " has been updated. Adding to Queue...");
                 
                 return true;
             }catch(IOException ex){

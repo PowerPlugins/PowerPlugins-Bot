@@ -28,7 +28,7 @@ public class WebhookManager{
     public void checkUpdate(Plugin plugin){
         FileManager.PluginFile config = instance.getFileManager().getPluginFile(plugin);
         if(config == null) {
-            instance.getLogger().warning("Plugin " + plugin.getName() + "was skipped. No plugin file present...");
+            instance.getLogger().warning("Plugin " + plugin.getName() + " was skipped. No plugin file present...");
             return;
         }
     
@@ -40,7 +40,7 @@ public class WebhookManager{
     
     public void send(){
         if(embeds.isEmpty()){
-            instance.getLogger().info("No updates...");
+            instance.getLogger().info("No updates present. Skipping...");
             return;
         }
         
@@ -54,11 +54,15 @@ public class WebhookManager{
             }else{
                 tag = "\u200E";
             }
+    
+            List<WebhookEmbed> embeds = groups.get(i);
             
             WebhookMessage msg = new WebhookMessageBuilder()
                     .setContent(tag)
-                    .addEmbeds(groups.get(i))
+                    .addEmbeds(embeds)
                     .build();
+            
+            instance.getLogger().info("Sending Notification about " + embeds.size() + " plugins...");
             
             client.send(msg);
         }
@@ -81,7 +85,7 @@ public class WebhookManager{
                     )
                     .setDescription(String.format(
                             "`%s` has been added to PowerPlugins and can now be found on the Server.\n" +
-                            "Use `/pl %s` on the server for more info.",
+                            "Use `/pl info %s` on the server for more info.",
                             plugin.getName(),
                             plugin.getName()
                     ))
