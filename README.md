@@ -45,7 +45,7 @@ A generated plugin file may look like this:
 ```yaml
 info:
   version: 1.4.3
-  url: 'https://github.com/PowerPlugins/PowerPlugins-Plugin'
+  url: ''
   name: 'PowerPlugins'
   authors:
   - 'Andre_601'
@@ -55,8 +55,23 @@ info:
   softdepends: []
 ```
 
-It is important to point out, that `depends` and `softdepends` are based on the plugin's plugin.yml file and if it has those values set or not.  
-`category` can be `free`, `premium` or `private`.
+| Field       | Description                                                         | Auto-Updated?* |
+| ----------- | ------------------------------------------------------------------- | -------------- |
+| version     | The version of the plugin.                                          | Yes            |
+| url         | The URL to the plugin page.                                         | No             |
+| name        | The name of the plugin.                                             | No             |
+| authors     | List of plugin authors.                                             | Yes            |
+| description | Description about the plugin                                        | No             |
+| category    | The category of the plugin. Can be `free`,  `premium` or `private`. | No             |
+| depends     | List of plugins this one depends on.                                | Yes            |
+| softdepends | List of plugins this one soft-depends on.                           | Yes            |
+
+*Fields that auto-update will have any changes you made overriden.
+
+This plugin determines if a plugin is new or updated by doing 2 things:
+
+1. It checks, if the YAML file has a URL set. If it is empty will the plugin see it as a newly added one.
+2. When the url is set will the plugin check the saved version and compare it with the one the other plugin provides. If they are different will it be seen as an update and the saved value will be updated.
 
 You should now head over to the config.yml. By default will it look like this:  
 ```yaml
