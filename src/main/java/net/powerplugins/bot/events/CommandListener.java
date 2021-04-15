@@ -19,10 +19,11 @@ public class CommandListener implements Listener{
     }
     
     @EventHandler(priority = EventPriority.HIGHEST)
-    public void onCommenPreProcess(PlayerCommandPreprocessEvent event){
+    public void onCommandPreProcess(PlayerCommandPreprocessEvent event){
         final String msg = event.getMessage().toLowerCase().substring(1);
         if(msg.startsWith("pl ") || msg.startsWith("plugins ") || msg.equals("pl") || msg.equals("plugins")){
             event.setCancelled(true);
+            
             final String[] cmd = msg.split("\\s", 2);
             String [] args = new String[0];
             if(cmd.length > 1)

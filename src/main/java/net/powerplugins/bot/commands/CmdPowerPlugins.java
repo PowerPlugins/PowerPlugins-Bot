@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import me.rayzr522.jsonmessage.JSONMessage;
 import net.powerplugins.bot.PowerPlugins;
 import net.powerplugins.bot.manager.FileManager;
-import net.powerplugins.bot.util.Strings;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
@@ -21,6 +20,35 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
+    // Headers
+    public static final String HEADER_FREE    = "&b&m---------------&b[ &aFree &b]&m---------------";
+    public static final String HEADER_PREMIUM = "&b&m--------------&b[ &6Premium &b]&m--------------";
+    public static final String HEADER_PRIVATE = "&b&m--------------&b[ &7Private &b]&m--------------";
+    
+    // Footers
+    public static final String FOOTER_MAIN = "&b&m-------------------------------------";
+    public static final String FOOTER_PAGE = "&b&m--------------&b[ &9Page {page} &b]&m--------------";
+    
+    // The [<] Nav item
+    public static final String NAV_PREV_ACTIVE   = "&b[&a<&b]";
+    
+    // Active and Inactive [>] Nav item
+    public static final String NAV_NEXT_ACTIVE   = "&b[&a>&b]";
+    public static final String NAV_NEXT_INACTIVE = "&b[&7>&b]";
+    
+    // Plugin infos
+    public static final String PLUGIN_SIMPLE       = "&b{name} &7- &f{author} &7[&f{version}&7]";
+    public static final String PLUGIN_NAME         = "&b{name} &7[&f{version}&7]";
+    public static final String PLUGIN_AUTHORS      = "&7Authors: &b{authors}";
+    public static final String PLUGIN_DEPENDENCIES = "&7Dependencies:";
+    public static final String PLUGIN_URL          = "&7Plugin Page: &b{url}";
+    public static final String PLUGIN_DESCRIPTION  = "&7Description:";
+    
+    // Plugin Categories
+    public static final String CAT_FREE    = "&aFree";
+    public static final String CAT_PREMIUM = "&6Premium";
+    public static final String CAT_PRIVATE = "&7Private";
+    
     private final PowerPlugins plugin;
     
     public CmdPowerPlugins(PowerPlugins plugin){
@@ -39,7 +67,7 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
         if(args.length == 0){
             clear(player);
             
-            JSONMessage json = JSONMessage.create(color(Strings.FOOTER_MAIN))
+            JSONMessage json = JSONMessage.create(color(FOOTER_MAIN))
                     .newline()
                     .newline()
                     .then(color("&7Please choose a Category.")).newline()
@@ -69,13 +97,13 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
                     .runCommand("/powerplugins private")
                     .newline()
                     .newline()
-                    .then(color(Strings.FOOTER_MAIN));
+                    .then(color(FOOTER_MAIN));
             
             json.send(player);
             return true;
         }else
         if(args[0].equalsIgnoreCase("free")){
-            List<JSONMessage> free = getPages("free", color(Strings.HEADER_FREE));
+            List<JSONMessage> free = getPages("free", color(HEADER_FREE));
             if(free.isEmpty()){
                 player.sendMessage(color("&cThis category doesn't have any Plugins listed."));
                 return true;
@@ -114,7 +142,7 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
             }
         }else
         if(args[0].equalsIgnoreCase("premium")){
-            List<JSONMessage> premium = getPages("premium", color(Strings.HEADER_PREMIUM));
+            List<JSONMessage> premium = getPages("premium", color(HEADER_PREMIUM));
             if(premium.isEmpty()){
                 player.sendMessage(color("&cThis category doesn't have any Plugins listed."));
                 return true;
@@ -153,7 +181,7 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
             }
         }else
         if(args[0].equalsIgnoreCase("private")){
-            List<JSONMessage> priv = getPages("private", color(Strings.HEADER_PRIVATE));
+            List<JSONMessage> priv = getPages("private", color(HEADER_PRIVATE));
             if(priv.isEmpty()){
                 player.sendMessage(color("&cThis category doesn't have any Plugins listed."));
                 return true;
@@ -229,12 +257,10 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
         arguments.add("private");
         arguments.add("info");
         
-        List<String> plugins = Stream.of(Bukkit.getPluginManager().getPlugins())
+        arguments.addAll(Stream.of(Bukkit.getPluginManager().getPlugins())
                 .map(Plugin::getName)
                 .sorted()
-                .collect(Collectors.toList());
-        
-        arguments.addAll(plugins);
+                .collect(Collectors.toList()));
         
         return arguments;
     }
@@ -266,11 +292,11 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
             JSONMessage json = JSONMessage.create();
             
             if(curPage > 1){
-                json.then(color(Strings.NAV_PREV_ACTIVE))
+                json.then(color(NAV_PREV_ACTIVE))
                         .tooltip(color("&7Page %d", curPage - 1))
                         .runCommand("/powerplugins " + category + " " + (curPage - 1));
             }else{
-                json.then(color(Strings.NAV_PREV_ACTIVE))
+                json.then(color(NAV_PREV_ACTIVE))
                         .tooltip(color("&7Back to selection."))
                         .runCommand("/powerplugins");
             }
@@ -278,22 +304,21 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
             json.then(title);
     
             if(curPage < total){
-                json.then(color(Strings.NAV_NEXT_ACTIVE))
+                json.then(color(NAV_NEXT_ACTIVE))
                         .tooltip(color("&7Page %d", curPage + 1))
                         .runCommand("/powerplugins " + category + " " + (curPage + 1));
             }else{
-                json.then(color(Strings.NAV_NEXT_INACTIVE));
+                json.then(color(NAV_NEXT_INACTIVE));
             }
             
             for(FileManager.PluginFile file : page){
                 String author = file.getAuthors().isEmpty() ? "Unknown" : file.getAuthors().get(0);
                 
                 json.newline()
-                    .then(color(
-                            Strings.PLUGIN_SIMPLE
-                                   .replace("{name}", file.getName())
-                                   .replace("{author}", author)
-                                   .replace("{version}", file.getVersion())
+                    .then(color(PLUGIN_SIMPLE
+                            .replace("{name}", file.getName())
+                            .replace("{author}", author)
+                            .replace("{version}", file.getVersion())
                     ))
                     .tooltip(ChatColor.translateAlternateColorCodes('&', String.format(
                             "%s\n" +
@@ -317,23 +342,23 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
             json.newline();
             
             if(curPage > 1){
-                json.then(color(Strings.NAV_PREV_ACTIVE))
+                json.then(color(NAV_PREV_ACTIVE))
                     .tooltip(color("&7Page %d", curPage - 1))
                     .runCommand("/powerplugins " + category + " " + (curPage - 1));
             }else{
-                json.then(color(Strings.NAV_PREV_ACTIVE))
+                json.then(color(NAV_PREV_ACTIVE))
                     .tooltip(color("&7Back to selection."))
                     .runCommand("/powerplugins");
             }
             
-            json.then(color(Strings.FOOTER_PAGE.replace("{page}", String.valueOf(curPage))));
+            json.then(color(FOOTER_PAGE.replace("{page}", String.valueOf(curPage))));
             
             if(curPage < total){
-                json.then(color(Strings.NAV_NEXT_ACTIVE))
+                json.then(color(NAV_NEXT_ACTIVE))
                     .tooltip(color("&7Page %d", curPage + 1))
                     .runCommand("/powerplugins " + category + " " + (curPage + 1));
             }else{
-                json.then(color(Strings.NAV_NEXT_INACTIVE));
+                json.then(color(NAV_NEXT_INACTIVE));
             }
             
             pages.add(json);
@@ -347,34 +372,33 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
         String title;
         switch(pluginFile.getCategory()){
             case "free":
-                category = color(Strings.CAT_FREE);
-                title = color(Strings.HEADER_FREE);
+                category = color(CAT_FREE);
+                title = color(HEADER_FREE);
                 break;
             case "premium":
-                category = color(Strings.CAT_PREMIUM);
-                title = color(Strings.HEADER_PREMIUM);
+                category = color(CAT_PREMIUM);
+                title = color(HEADER_PREMIUM);
                 break;
             default:
             case "private":
-                category = color(Strings.CAT_PRIVATE);
-                title = color(Strings.HEADER_PRIVATE);
+                category = color(CAT_PRIVATE);
+                title = color(HEADER_PRIVATE);
                 break;
         }
         
-        JSONMessage json = JSONMessage.create(color(Strings.NAV_PREV_ACTIVE))
+        JSONMessage json = JSONMessage.create(color(NAV_PREV_ACTIVE))
                 .tooltip(color("&7Back to Plugin category %s.", category))
                 .runCommand("/powerplugins " + pluginFile.getCategory())
                 .then(color(title))
-                .then(color(Strings.NAV_NEXT_INACTIVE))
+                .then(color(NAV_NEXT_INACTIVE))
                 .newline()
-                .then(color(
-                        Strings.PLUGIN_NAME
-                               .replace("{name}", pluginFile.getName())
-                               .replace("{version}", pluginFile.getVersion())
+                .then(color(PLUGIN_NAME
+                        .replace("{name}", pluginFile.getName())
+                        .replace("{version}", pluginFile.getVersion())
                 ))
                 .newline()
                 .newline()
-                .then(color(Strings.PLUGIN_AUTHORS.replace("{authors}", plugin.getAuthors(pluginFile.getAuthors()))));
+                .then(color(PLUGIN_AUTHORS.replace("{authors}", plugin.getAuthors(pluginFile.getAuthors()))));
         
         if(!pluginFile.getDepends().isEmpty() || !pluginFile.getSoftDepends().isEmpty()){
             Map<String, Boolean> dependencies = new HashMap<>();
@@ -392,7 +416,7 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
             Map<String, Boolean> sorted = new TreeMap<>(dependencies);
             
             json.newline()
-                .then(color(Strings.PLUGIN_DEPENDENCIES));
+                .then(color(PLUGIN_DEPENDENCIES));
             for(String dependency : sorted.keySet()){
                 json.newline()
                     .then(color("&7- &b%s", dependency))
@@ -409,19 +433,19 @@ public class CmdPowerPlugins implements CommandExecutor, TabCompleter{
         }
         
         json.newline()
-            .then(color(Strings.PLUGIN_URL.replace("{url}", pluginFile.getUrl())))
+            .then(color(PLUGIN_URL.replace("{url}", pluginFile.getUrl())))
             .tooltip(color("&7Click to view the plugin page."))
             .openURL(pluginFile.getUrl())
             .newline()
-            .then(color(Strings.PLUGIN_DESCRIPTION))
+            .then(color(PLUGIN_DESCRIPTION))
             .newline()
             .then(color("&b%s", pluginFile.getDescription()))
             .newline()
-            .then(color(Strings.NAV_PREV_ACTIVE))
+            .then(color(NAV_PREV_ACTIVE))
             .tooltip(color("&7Back to Plugin category %s.", category))
             .runCommand("/powerplugins " + pluginFile.getCategory())
-            .then(color(Strings.FOOTER_MAIN))
-            .then(color(Strings.NAV_NEXT_INACTIVE));
+            .then(color(FOOTER_MAIN))
+            .then(color(NAV_NEXT_INACTIVE));
         
         return json;
     }

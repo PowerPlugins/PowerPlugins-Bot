@@ -76,25 +76,6 @@ public class FileManager{
         
     }
     
-    private File getFile(String name){
-        File file = new File(folder, name + ".yml");
-        if(folder.mkdirs())
-            instance.getLogger().info("Created folder 'plugins'");
-        
-        if(file.exists())
-            return file;
-        
-        try{
-            if(file.createNewFile())
-                instance.getLogger().info("Created file " + name + ".yml!");
-            
-            return file;
-        }catch(IOException ex){
-            instance.getLogger().warning("Could not load or create file " + name + ".yml!");
-            return null;
-        }
-    }
-    
     public boolean isDifferent(Plugin plugin, PluginFile pluginFile){
         if(pluginFile.isNew()){
             instance.getLogger().info(plugin.getName() + " has been recently added. Adding to Queue...");
@@ -128,6 +109,25 @@ public class FileManager{
         }
         
         return false;
+    }
+    
+    private File getFile(String name){
+        File file = new File(folder, name + ".yml");
+        if(folder.mkdirs())
+            instance.getLogger().info("Created folder 'plugins'");
+        
+        if(file.exists())
+            return file;
+        
+        try{
+            if(file.createNewFile())
+                instance.getLogger().info("Created file " + name + ".yml!");
+            
+            return file;
+        }catch(IOException ex){
+            instance.getLogger().warning("Could not load or create file " + name + ".yml!");
+            return null;
+        }
     }
     
     public static class PluginFile{

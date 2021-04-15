@@ -73,61 +73,38 @@ public class WebhookManager{
     }
     
     private WebhookEmbed getEmbed(Plugin plugin, String url, boolean isNew){
-        WebhookEmbed embed;
+        WebhookEmbedBuilder builder = new WebhookEmbedBuilder()
+                .setColor(0xF39C12)
+                .setTitle(new WebhookEmbed.EmbedTitle(
+                        isNew ? "Added " + plugin.getName() + " to the Server!" : "Updated " + plugin.getName() + "!",
+                        null
+                ));
+        
         if(isNew){
-            embed = new WebhookEmbedBuilder()
-                    .setColor(0xF39C12)
-                    .setTitle(
-                            new WebhookEmbed.EmbedTitle(
-                                    "Added " + plugin.getName() + " to the Server",
-                                    null
-                            )
-                    )
-                    .setDescription(String.format(
-                            "`%s` has been added to PowerPlugins and can now be found on the Server.\n" +
-                            "Use `/pl info %s` on the server for more info.",
-                            plugin.getName(),
-                            plugin.getName()
-                    ))
-                    .addField(
-                            new WebhookEmbed.EmbedField(
-                                    false,
-                                    "Plugin Author(s):",
-                                    instance.getAuthors(plugin.getDescription().getAuthors())
-                            )
-                    )
-                    .build(); 
+            builder.setDescription(String.format(
+                    "The Plugin `%s` can now be found on the Server!\n" +
+                    "Use `/pl info %s` on the MC Server to get Infos about it.",
+                    plugin.getName(),
+                    plugin.getName()
+            ));
         }else{
-            embed = new WebhookEmbedBuilder()
-                    .setColor(0xF39C12)
-                    .setTitle(
-                            new WebhookEmbed.EmbedTitle(
-                                    "Updated " + plugin.getName() + "!",
-                                    url
-                            )
-                    )
-                    .setDescription(String.format(
-                            "`%s` has been updated to `%s`",
-                            plugin.getName(),
-                            plugin.getDescription().getVersion()
-                    ))
-                    .addField(
-                            new WebhookEmbed.EmbedField(
-                                    false,
-                                    "Plugin Author(s):",
-                                    instance.getAuthors(plugin.getDescription().getAuthors())
-                            )
-                    )
-                    .addField(
-                            new WebhookEmbed.EmbedField(
-                                    false,
-                                    "Plugin Page:",
-                                    url
-                            )
-                    )
-                    .build();
+            builder.setDescription(String.format(
+                    "The Plugin `%s` has been updated to `%s`",
+                    plugin.getName(),
+                    plugin.getDescription().getVersion()
+            )).addField(new WebhookEmbed.EmbedField(
+                    false,
+                    "Plugin Page:",
+                    url
+            ));
         }
         
-        return embed;
+        builder.addField(new WebhookEmbed.EmbedField(
+                false,
+                "Plugin Author(s):",
+                instance.getAuthors(plugin.getDescription().getAuthors())
+        ));
+        
+        return builder.build();
     }
 }
